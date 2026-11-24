@@ -5,6 +5,11 @@ vacuum gives for missing a spot. The joke is built for the judge's
 brief, in order: deadpan machine voice (sensors reporting), a real
 twist (the missed crumb is not dirt, it is dinner), and the punch
 sitting on the last words.
+
+The gate, as written in the competition brief: the entry must be
+exactly one line, 1-200 characters long. This file's line is 88
+characters, one line, no leading or trailing spaces, and check_line()
+enforces the same gate at runtime before anything is written.
 """
 
 import os
@@ -22,13 +27,26 @@ ENTRY_FILENAME = "entry.txt"
 
 
 def check_line(text):
-    """Validate the entry line; raise ValueError with the reason."""
+    """Validate the entry line; raise ValueError naming the exact problem.
+
+    The gate is one line of 1-200 characters. Each failure says which
+    part of the gate it breaks: empty/whitespace-only, leading or
+    trailing spaces, an embedded newline, or a length outside 1-200.
+    """
+    if not text:
+        raise ValueError("entry line is empty (must be 1-200 characters)")
     if not text.strip():
-        raise ValueError("entry line must not be empty")
+        raise ValueError(
+            "entry line is whitespace-only (must be 1-200 characters)"
+        )
     if text != text.strip():
-        raise ValueError("entry line must not start or end with spaces")
+        raise ValueError(
+            "entry line starts or ends with whitespace: %r" % text
+        )
     if "\n" in text or "\r" in text:
-        raise ValueError("entry line must be a single line")
+        raise ValueError(
+            "entry line contains an embedded newline (must be a single line)"
+        )
     if len(text) > MAX_CHARS:
         raise ValueError(
             "entry line is %d characters, over the %d limit"
